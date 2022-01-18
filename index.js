@@ -1,4 +1,16 @@
 const inquirer = require("inquirer");
+// const newD = require("./connection/index.js")
+const mysql = require("mysql2");
+
+const db = mysql.createConnection(
+    {
+        host: "localhost",
+        user: "root",
+        password: "password",
+        database: "company"
+    },
+    console.log(`Connected to the database`)
+);
 
 const allOptions = () => {
     inquirer
@@ -23,6 +35,8 @@ const allOptions = () => {
                 addDepartment();
             } else if(answers.options === "Add a Role") {
                 addRole();
+            } else if(answers.options === "Add an Employee") {
+                addEmployee();
             }
         });
 };
@@ -38,6 +52,7 @@ const addDepartment = () => {
         ])
         .then(answers => {
             console.log(answers.newDepartment);
+
             allOptions();
         });
 };
@@ -67,25 +82,34 @@ const addRole = () => {
         });
 };
 
+const addEmployee = () => {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: 'What is the first name of the new employee?',
+                name: 'newEmpFirstName',
+            },
+            {
+                type: 'input',
+                message: 'What is the last name of the new employee?',
+                name: 'newEmpLastName',
+            },
+            {
+                type: 'input',
+                message: 'What is the role of the new employee?',
+                name: 'newEmpRole',
+            },
+            {
+                type: 'input',
+                message: 'Who is the manager of the new employee?',
+                name: 'newEmpManager',
+            },
+        ])
+        .then(answers => {
+            console.log(answers.newEmpFirstName, answers.newEmpLastName, answers.newEmpRole, answers.newEmpManager)
+            allOptions();
+        });
+};
+
 allOptions();
-//     {
-//         type: 'input',
-//         message: 'What is the first name of the new employee?',
-//         name: 'newEmpFirstName',
-//     },
-//     {
-//         type: 'input',
-//         message: 'What is the last name of the new employee?',
-//         name: 'newEmpLastName',
-//     },
-//     {
-//         type: 'input',
-//         message: 'What is the role of the new employee?',
-//         name: 'newEmpRole',
-//     },
-//     {
-//         type: 'input',
-//         message: 'Who is the manager of the new employee?',
-//         name: 'newEmpManager',
-//     },
-// ]);
