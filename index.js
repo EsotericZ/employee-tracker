@@ -1,6 +1,4 @@
 const inquirer = require("inquirer");
-// const newD = require("./connection/index.js")
-// const cTable = require('console.table');
 const mysql = require("mysql2");
 
 const db = mysql.createConnection(
