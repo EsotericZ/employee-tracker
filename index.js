@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 // const newD = require("./connection/index.js")
+// const cTable = require('console.table');
 const mysql = require("mysql2");
 
 const db = mysql.createConnection(
@@ -52,7 +53,18 @@ const addDepartment = () => {
         ])
         .then(answers => {
             console.log(answers.newDepartment);
-
+            db.query(`INSERT INTO department (name) VALUES ("${answers.newDepartment}");`, (err, results) => {
+                if (err) { 
+                    console.log(err)
+                }
+                console.log(results)
+            })
+            db.query("SELECT * FROM department;", (err, results) => {
+                if (err) { 
+                    console.log(err)
+                }
+                console.table(results)
+            })
             allOptions();
         });
 };
