@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
+const cTable = require('console.table');
 
 const db = mysql.createConnection(
     {
@@ -30,15 +31,49 @@ const allOptions = () => {
         },
         ])
         .then(answers => {
-            if(answers.options === "Add a Department") {
+            if (answers.options === "View all Departments") {
+                viewDepartments();
+            } else if(answers.options === "View all Roles") {
+                viewRoles();
+            } else if(answers.options === "View all Employees") {
+                viewEmployees();
+            } else if(answers.options === "Add a Department") {
                 addDepartment();
             } else if(answers.options === "Add a Role") {
                 addRole();
             } else if(answers.options === "Add an Employee") {
                 addEmployee();
+            } else if(answers.options === "Update an Employee Role") {
+                updateEmpRole();
+            } else {
+                return
             }
         });
 };
+
+const viewDepartments = () => {
+    db.query("SELECT * FROM department;", (err, result) => {
+        if (err) { console.log(err) }
+        console.table(result)
+    });
+    allOptions();
+}
+
+const viewRoles = () => {
+    db.query("SELECT * FROM role;", (err, result) => {
+        if (err) { console.log(err) }
+        console.table(result)
+    });
+    allOptions();
+}
+
+const viewEmployees = () => {
+    db.query("SELECT * FROM employee;", (err, result) => {
+        if (err) { console.log(err) }
+        console.table(result)
+    });
+    allOptions();
+}
 
 const addDepartment = () => {
     inquirer
@@ -52,16 +87,8 @@ const addDepartment = () => {
         .then(answers => {
             const newDept = answers.newDepartment;
             db.query("INSERT INTO department (name) VALUES (?);", [newDept], (err, results) => {
-                if (err) { 
-                    console.log(err)
-                }
-                console.log(results)
-            });
-            db.query("SELECT * FROM department;", (err, result) => {
-                if (err) { 
-                    console.log(err)
-                }
-                console.table(result)
+                if (err) { console.log(err) }
+                console.log(" ")
             });
             allOptions();
         });
@@ -87,7 +114,13 @@ const addRole = () => {
             },
         ])
         .then(answers => {
-            console.log(answers.newRoleName, answers.newRoleSalary, answers.newRoleDepartment)
+            const newName = answers.newRoleName;
+            const newSalary = answers.newRoleSalary;
+            const newDept = answers.newRoleDepartment; // NEED TO FIX THIS! 
+            db.query("INSERT INTO role (title, salary, department_id) VALUES (?);", [newName, newSalary, newDept], (err, results) => {
+                if (err) { console.log(err) }
+                console.log(" ")
+            });
             allOptions();
         });
 };
@@ -106,18 +139,27 @@ const addEmployee = () => {
                 name: 'newEmpLastName',
             },
             {
+                // NEED TO FIX THIS
                 type: 'input',
                 message: 'What is the role of the new employee?',
                 name: 'newEmpRole',
             },
             {
+                // NEED TO FIX THIS
                 type: 'input',
                 message: 'Who is the manager of the new employee?',
                 name: 'newEmpManager',
             },
         ])
         .then(answers => {
-            console.log(answers.newEmpFirstName, answers.newEmpLastName, answers.newEmpRole, answers.newEmpManager)
+            const newFirst = answers.newEmpFirstName;
+            const newLast = answers.newEmpLastName;
+            const newEmpRole = answers.newEmpRole; // NEED TO FIX THIS! 
+            const newManag = answers.newEmpManager; // NEED TO FIX THIS!
+            db.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?);", [newFirst, newLast, newEmpRole, newManag], (err, results) => {
+                if (err) { console.log(err) }
+                console.log(" ")
+            });
             allOptions();
         });
 };
