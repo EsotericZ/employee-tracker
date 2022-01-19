@@ -50,19 +50,19 @@ const addDepartment = () => {
             },
         ])
         .then(answers => {
-            console.log(answers.newDepartment);
-            db.query(`INSERT INTO department (name) VALUES ("${answers.newDepartment}");`, (err, results) => {
+            const newDept = answers.newDepartment;
+            db.query("INSERT INTO department (name) VALUES (?);", [newDept], (err, results) => {
                 if (err) { 
                     console.log(err)
                 }
                 console.log(results)
-            })
-            db.query("SELECT * FROM department;", (err, results) => {
+            });
+            db.query("SELECT * FROM department;", (err, result) => {
                 if (err) { 
                     console.log(err)
                 }
-                console.table(results)
-            })
+                console.table(result)
+            });
             allOptions();
         });
 };
