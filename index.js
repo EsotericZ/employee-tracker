@@ -1,6 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
-const cTable = require('console.table');
+const cTable = require("console.table");
 
 const db = mysql.createConnection(
     {
@@ -94,7 +94,16 @@ const addDepartment = () => {
         });
 };
 
+let showopt = [];
+let doptions = [];
 const addRole = () => {
+    db.query("SELECT * FROM department;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            showopt.push(n.name);
+            doptions.push([n.id, n.name]);
+        });
+    });
     inquirer
         .prompt([
             {
@@ -108,16 +117,24 @@ const addRole = () => {
                 name: 'newRoleSalary',
             },
             {
-                type: 'input',
-                message: 'What is the department of the new role?',
+                type: 'list',
+                message: 'Select the department of the new role',
+                choices: showopt,
                 name: 'newRoleDepartment',
             },
         ])
         .then(answers => {
             const newName = answers.newRoleName;
             const newSalary = answers.newRoleSalary;
-            const newDept = answers.newRoleDepartment; // NEED TO FIX THIS! 
-            db.query("INSERT INTO role (title, salary, department_id) VALUES (?);", [newName, newSalary, newDept], (err, results) => {
+            const newDept = answers.newRoleDepartment;
+            let newDeptNo;
+            doptions.forEach(dept => {
+                if (newDept === dept[1]) {
+                    letnewDeptNo = dept[0];
+                }
+            })
+            console.log(newName, newSalary, newDeptNo) 
+            db.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);", [newName, newSalary, newDeptNo], (err, results) => {
                 if (err) { console.log(err) }
                 console.log(" ")
             });
