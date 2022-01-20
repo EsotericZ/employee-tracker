@@ -25,7 +25,7 @@ const allOptions = () => {
                 'Add a Department',
                 'Add a Role',
                 'And an Employee',
-                'Update an Employee Role',
+                'Update an Employee Role'
             ],
             name: 'options',  
         },
@@ -55,24 +55,24 @@ const viewDepartments = () => {
     db.query("SELECT * FROM department;", (err, result) => {
         if (err) { console.log(err) }
         console.table(result)
+        allOptions();
     });
-    allOptions();
 }
 
 const viewRoles = () => {
     db.query("SELECT * FROM role;", (err, result) => {
         if (err) { console.log(err) }
         console.table(result)
+        allOptions();
     });
-    allOptions();
 }
 
 const viewEmployees = () => {
     db.query("SELECT * FROM employee;", (err, result) => {
         if (err) { console.log(err) }
         console.table(result)
+        allOptions();
     });
-    allOptions();
 }
 
 const addDepartment = () => {
