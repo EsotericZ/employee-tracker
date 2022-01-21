@@ -41,7 +41,7 @@ const allOptions = () => {
                 addDepartment();
             } else if(answers.options === "Add a Role") {
                 addRole();
-            } else if(answers.options === "Add an Employee") {
+            } else if(answers.options === "And an Employee") {
                 addEmployee();
             } else if(answers.options === "Update an Employee Role") {
                 updateEmpRole();
@@ -60,7 +60,7 @@ const viewDepartments = () => {
 }
 
 const viewRoles = () => {
-    db.query("SELECT R.id, R.title, R.salary, D.name department FROM role R JOIN department D ON R.department_id = D.id;", (err, result) => {
+    db.query("SELECT R.id, R.title, R.salary, D.name department FROM role R INNER JOIN department D ON R.department_id = D.id;", (err, result) => {
         if (err) { console.log(err) }
         console.table(result)
         allOptions();
@@ -68,7 +68,8 @@ const viewRoles = () => {
 }
 
 const viewEmployees = () => {
-    db.query("SELECT * FROM employee;", (err, result) => {
+    // db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, M.manager_id FROM employee E JOIN role R ON E.role_id = R.id JOIN department D ON R.department_id = D.id JOIN employee M ON E.manger_id = M.id;", (err, result) => {
+    db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, E.manager_id FROM employee E INNER JOIN role R ON E.role_id = R.id INNER JOIN department D ON R.department_id = D.id;", (err, result) => {
         if (err) { console.log(err) }
         console.table(result)
         allOptions();
@@ -144,12 +145,21 @@ const addRole = () => {
 
 let showEopt = [];
 let eoptions = [];
+let showEMopt = [];
+let emoptions = [];
 const addEmployee = () => {
     db.query("SELECT * FROM role;", (err, result) => {
         if (err) { console.log(err) }
         result.forEach(n => { 
             showEopt.push(n.title);
             eoptions.push([n.id, n.title]);
+        });
+    });
+    db.query("SELECT * FROM employee;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            showEMopt.push(n.first_name + " " + n.last_name);
+            emoptions.push([n.id, n.first_name + " " + n.last_name]);
         });
     });
     inquirer
@@ -171,9 +181,9 @@ const addEmployee = () => {
                 name: 'newEmpRole',
             },
             {
-                // NEED TO FIX THIS
-                type: 'input',
+                type: 'list',
                 message: 'Who is the manager of the new employee?',
+                choices: showEMopt,
                 name: 'newEmpManager',
             },
         ])
@@ -181,14 +191,20 @@ const addEmployee = () => {
             const newFirst = answers.newEmpFirstName;
             const newLast = answers.newEmpLastName;
             const newEmpRole = answers.newEmpRole;
-            const newManag = answers.newEmpManager; // NEED TO FIX THIS!
+            const newManag = answers.newEmpManager;
             let newRoleNo;
+            let newMangNo;
             eoptions.forEach(rol => {
                 if (newEmpRole === rol[1]) {
                     newRoleNo = rol[0];
                 }
             })
-            db.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);", [newFirst, newLast, newRoleNo, newManag], (err, results) => {
+            emoptions.forEach(man => {
+                if (newManag === man[1]) {
+                    newMangNo = man[0];
+                }
+            })
+            db.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);", [newFirst, newLast, newRoleNo, newMangNo], (err, results) => {
                 if (err) { console.log(err) }
                 console.log(" ")
             });
