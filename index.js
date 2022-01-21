@@ -90,8 +90,8 @@ const addDepartment = () => {
             db.query("INSERT INTO department (name) VALUES (?);", [newDept], (err, results) => {
                 if (err) { console.log(err) }
                 console.log(" ")
+                allOptions();
             });
-            allOptions();
         });
 };
 
@@ -137,9 +137,9 @@ const addRole = () => {
             console.log(newName, newSalary, newDeptNo) 
             db.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);", [newName, newSalary, newDeptNo], (err, results) => {
                 if (err) { console.log(err) }
-                console.log(" ")
+                console.log("Role Successfully Added")
+                allOptions();
             });
-            allOptions();
         });
 };
 
@@ -206,9 +206,71 @@ const addEmployee = () => {
             })
             db.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);", [newFirst, newLast, newRoleNo, newMangNo], (err, results) => {
                 if (err) { console.log(err) }
-                console.log(" ")
+                console.log("Employee Successfully Added")
+                allOptions();
             });
-            allOptions();
+        });
+};
+
+let showEmp = [];
+let empSelector = [];
+let showRole = [];
+let roleSelector = [];
+const updateEmpRole = () => {
+    db.query("SELECT * FROM employee;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            showEmp.push(n.first_name + " " + n.last_name);
+            empSelector.push([n.id, n.first_name + " " + n.last_name]);
+        });
+    });
+    db.query("SELECT * FROM role;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            showRole.push(n.title);
+            roleSelector.push([n.id, n.title]);
+        });
+    });
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: 'Are you sure you want to change an employee role? Press [Enter] for yes, [ctrl+c] to cancel',
+                name: 'dummyVar',
+            },
+            {
+                type: 'list',
+                message: 'Which employee would you like to update?',
+                choices: showEmp,
+                name: 'updateEmployee',
+            },
+            {
+                type: 'list',
+                message: 'What role would you like them to have?',
+                choices: showRole,
+                name: 'updateRole',
+            },
+        ])
+        .then(answers => {
+            const upEmp = answers.updateEmployee;
+            const upRole = answers.updateRole;
+            let upRoleNo;
+            let upEmpNo;
+            empSelector.forEach(emp => {
+                if (upEmp === emp[1]) {
+                    upEmpNo = emp[0];
+                }
+            })
+            roleSelector.forEach(rol => {
+                if (upRole === rol[1]) {
+                    upRoleNo = rol[0];
+                }
+            })
+            db.query("UPDATE employee SET role_id = ? WHERE id = ?;", [upRoleNo, upEmpNo], (err, results) => {
+                if (err) { console.log(err) }
+                console.log("Role Successfully Updated")
+                allOptions();
+            });
         });
 };
 
