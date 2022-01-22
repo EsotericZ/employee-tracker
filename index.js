@@ -68,8 +68,7 @@ const viewRoles = () => {
 }
 
 const viewEmployees = () => {
-    // db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, M.manager_id FROM employee E JOIN role R ON E.role_id = R.id JOIN department D ON R.department_id = D.id JOIN employee M ON E.manger_id = M.id;", (err, result) => {
-    db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, E.manager_id FROM employee E INNER JOIN role R ON E.role_id = R.id INNER JOIN department D ON R.department_id = D.id;", (err, result) => {
+    db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, CONCAT(M.first_name, ' ', M.last_name) manager FROM employee E INNER JOIN role R ON E.role_id = R.id INNER JOIN department D ON R.department_id = D.id LEFT JOIN employee M ON E.manager_id = M.id;", (err, result) => {
         if (err) { console.log(err) }
         console.table(result)
         allOptions();
