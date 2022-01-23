@@ -22,10 +22,13 @@ const allOptions = () => {
                 'View all Departments',
                 'View all Roles',
                 'View all Employees',
+                'View all Employees by Manager',
+                'View all Employees by Department',
                 'Add a Department',
                 'Add a Role',
                 'And an Employee',
-                'Update an Employee Role'
+                'Update an Employee Role',
+                'Update an Employee Manager'
             ],
             name: 'options',  
         },
@@ -37,6 +40,10 @@ const allOptions = () => {
                 viewRoles();
             } else if(answers.options === "View all Employees") {
                 viewEmployees();
+            } else if(answers.options === "View all Employees by Manager") {
+                viewEmplByMang();
+            } else if(answers.options === "View all Employees by Department") {
+                viewEmplByDept();
             } else if(answers.options === "Add a Department") {
                 addDepartment();
             } else if(answers.options === "Add a Role") {
@@ -45,8 +52,8 @@ const allOptions = () => {
                 addEmployee();
             } else if(answers.options === "Update an Employee Role") {
                 updateEmpRole();
-            } else {
-                return
+            } else if(answers.options === "Update an Employee Manager") {
+                updateEmpMang();
             }
         });
 };
@@ -74,6 +81,86 @@ const viewEmployees = () => {
         allOptions();
     });
 }
+
+MangOpt = [];
+MangOpts = [];
+const viewEmplByMang = () => {
+    db.query("SELECT * FROM employee;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            MangOpt.push(n.first_name + " " + n.last_name);
+            MangOpts.push([n.id, n.first_name + " " + n.last_name]);
+        });
+    });
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: 'If selected employee is not a manager, will return to prompt. Press [Enter] to continue.',
+                name: 'dummyVar',
+            },
+            {
+                type: 'list',
+                message: 'Which manager would you like to see?',
+                choices: MangOpt,
+                name: 'managerName',
+            },
+        ])
+        .then(answers => {
+            const manName = answers.managerName;
+            let managerNo;
+            MangOpts.forEach(dept => {
+                if (manName === dept[1]) {
+                    managerNo = dept[0];
+                }
+            })
+            db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, CONCAT(M.first_name, ' ', M.last_name) manager FROM employee E INNER JOIN role R ON E.role_id = R.id INNER JOIN department D ON R.department_id = D.id LEFT JOIN employee M ON E.manager_id = M.id WHERE E.manager_id = ?;", [managerNo], (err, result) => {
+                if (err) { console.log(err) }
+                console.table(result)
+                allOptions();
+            });
+        });
+};
+
+DeptOpt = [];
+DeptOpts = [];
+const viewEmplByDept = () => {
+    db.query("SELECT * FROM department;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            DeptOpt.push(n.name);
+            DeptOpts.push([n.id, n.name]);
+        });
+    });
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: 'If no employees in department, will return to prompt. Press [Enter] to continue.',
+                name: 'dummyVar',
+            },
+            {
+                type: 'list',
+                message: 'Which department would you like to see?',
+                choices: DeptOpt,
+                name: 'departmentName',
+            },
+        ])
+        .then(answers => {
+            const deptName = answers.departmentName;
+            let deptNo;
+            DeptOpts.forEach(dept => {
+                if (deptName === dept[1]) {
+                    deptNo = dept[0];
+                }
+            })
+            db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, CONCAT(M.first_name, ' ', M.last_name) manager FROM employee E INNER JOIN role R ON E.role_id = R.id INNER JOIN department D ON R.department_id = D.id LEFT JOIN employee M ON E.manager_id = M.id WHERE D.id = ?;", [deptNo], (err, result) => {
+                if (err) { console.log(err) }
+                console.table(result)
+                allOptions();
+            });
+        });
+};
 
 const addDepartment = () => {
     inquirer
@@ -133,7 +220,6 @@ const addRole = () => {
                     newDeptNo = dept[0];
                 }
             })
-            console.log(newName, newSalary, newDeptNo) 
             db.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);", [newName, newSalary, newDeptNo], (err, results) => {
                 if (err) { console.log(err) }
                 console.log("Role Successfully Added")
@@ -268,6 +354,59 @@ const updateEmpRole = () => {
             db.query("UPDATE employee SET role_id = ? WHERE id = ?;", [upRoleNo, upEmpNo], (err, results) => {
                 if (err) { console.log(err) }
                 console.log("Role Successfully Updated")
+                allOptions();
+            });
+        });
+};
+
+let showEmpl = [];
+let emplSelector = [];
+const updateEmpMang = () => {
+    db.query("SELECT * FROM employee;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            showEmpl.push(n.first_name + " " + n.last_name);
+            emplSelector.push([n.id, n.first_name + " " + n.last_name]);
+        });
+    });
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: 'Are you sure you want to update an employees manager? Press [Enter] for yes, [ctrl+c] to cancel',
+                name: 'dummyVar',
+            },
+            {
+                type: 'list',
+                message: 'Which employee would you like to update?',
+                choices: showEmpl,
+                name: 'chooseEmployee',
+            },
+            {
+                type: 'list',
+                message: 'What manager would you like them to have?',
+                choices: showEmpl,
+                name: 'updateMang',
+            },
+        ])
+        .then(answers => {
+            const empChoice = answers.chooseEmployee;
+            const upMang = answers.updateMang;
+            let employeeNo;
+            let upMangNo;
+            emplSelector.forEach(emp => {
+                if (empChoice === emp[1]) {
+                    employeeNo = emp[0];
+                }
+            })
+            emplSelector.forEach(rol => {
+                if (upMang === rol[1]) {
+                    upMangNo = rol[0];
+                }
+            })
+            db.query("UPDATE employee SET manager_id = ? WHERE id = ?;", [upMangNo, employeeNo], (err, results) => {
+                if (err) { console.log(err) }
+                console.log("Manager Successfully Updated")
                 allOptions();
             });
         });
