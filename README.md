@@ -17,7 +17,7 @@ Inquirer, mysql2 and console.table are required to run the app
 Viewing and modifying information in a database.
 
 Video Example  
-[![Watch](https://img.freepik.com/free-vector/video-player-interface-play-button-play-video_177006-355.jpg?size=626&ext=jpg)](https://watch.screencastify.com/v/MSRhzrJCqlGbFDTl6NJm)
+[![Watch](https://img.freepik.com/free-vector/video-player-interface-play-button-play-video_177006-355.jpg?size=626&ext=jpg)](https://watch.screencastify.com/v/zSkqrY5iZ9xgD4zKpz71)
       
 ## Contributing 
 Kirtley Adams contributed to this app
