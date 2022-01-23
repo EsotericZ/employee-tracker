@@ -24,6 +24,7 @@ const allOptions = () => {
                 'View all Employees',
                 'View all Employees by Manager',
                 'View all Employees by Department',
+                'View total utilized budget of a Department',
                 'Add a Department',
                 'Add a Role',
                 'And an Employee',
@@ -44,6 +45,8 @@ const allOptions = () => {
                 viewEmplByMang();
             } else if(answers.options === "View all Employees by Department") {
                 viewEmplByDept();
+            } else if(answers.options === "View total utilized budget of a Department") {
+                departmentBudget();
             } else if(answers.options === "Add a Department") {
                 addDepartment();
             } else if(answers.options === "Add a Role") {
@@ -155,6 +158,46 @@ const viewEmplByDept = () => {
                 }
             })
             db.query("SELECT E.id, E.first_name, E.last_name, R.title, D.name department, R.salary, CONCAT(M.first_name, ' ', M.last_name) manager FROM employee E INNER JOIN role R ON E.role_id = R.id INNER JOIN department D ON R.department_id = D.id LEFT JOIN employee M ON E.manager_id = M.id WHERE D.id = ?;", [deptNo], (err, result) => {
+                if (err) { console.log(err) }
+                console.table(result)
+                allOptions();
+            });
+        });
+};
+
+DepBudOpt = [];
+DepBudOpts = [];
+const departmentBudget = () => {
+    db.query("SELECT * FROM department;", (err, result) => {
+        if (err) { console.log(err) }
+        result.forEach(n => { 
+            DepBudOpt.push(n.name);
+            DepBudOpts.push([n.id, n.name]);
+        });
+    });
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                message: 'If no employees in department, will return to prompt. Press [Enter] to continue.',
+                name: 'dummyVar',
+            },
+            {
+                type: 'list',
+                message: 'Which department would you like to see?',
+                choices: DepBudOpt,
+                name: 'deptName',
+            },
+        ])
+        .then(answers => {
+            const depName = answers.deptName;
+            let depBudNo;
+            DepBudOpts.forEach(dept => {
+                if (depName === dept[1]) {
+                    depBudNo = dept[0];
+                }
+            })
+            db.query("SELECT D.name department, SUM(R.salary) FROM employee E INNER JOIN role R ON E.role_id = R.id INNER JOIN department D ON R.department_id = D.id WHERE D.id = ?;", [depBudNo], (err, result) => {
                 if (err) { console.log(err) }
                 console.table(result)
                 allOptions();
