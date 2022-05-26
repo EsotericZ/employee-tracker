@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 # employee-tracker
+A tool to create teams
 
-a tool to create teams
-=======
 # Employee Tracker
 
 ## Description 
@@ -33,4 +31,3 @@ N/A
 ## Questions
 GitHub Profile: [EsotericZ](https://www.github.com/EsotericZ)  
 Additional questions? [Contact Me](mailto:cjsand03@gmail.com)
->>>>>>> 1a2aeadd24cec685d599ff8f1177f467da283eaf
